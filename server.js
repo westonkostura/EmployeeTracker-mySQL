@@ -135,39 +135,35 @@ function viewAllEmployees() {
 }
 
 function viewEmployeesByDepartment() {
-  // TODO: Implement view employees by department logic
-  connection.query("SELECT * FROM departments", function (err, results) {
-    if (err) throw err;
-    if (results.length === 0) {
-      console.log("No departments found.");
-    } else {
-      console.log("Viewing all departments...\n");
-      console.log("\n");
+  // Select all employees and join with departments table
+  connection.query(
+    "SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.name AS department, roles.salary, CONCAT(managers.first_name, ' ', managers.last_name) AS manager FROM employees LEFT JOIN roles ON employees.role_id = roles.id LEFT JOIN departments ON roles.department_id = departments.id LEFT JOIN employees managers ON employees.manager_id = managers.id ORDER BY departments.id",
+    function (err, results) {
+      if (err) throw err;
+      console.log("Viewing all employees by department...\n");
       console.table(results);
+      console.log(
+        "*************************************************************************************************************"
+      );
+      mainMenu();
     }
-    console.log(
-      "*************************************************************************************************************"
-    );
-    mainMenu();
-  });
+  );
 }
 
 function viewEmployeesByManager() {
-  // TODO: Implement view employees by manager logic
-  connection.query("SELECT * FROM manager", function (err, results) {
-    if (err) throw err;
-    if (results.length === 0) {
-      console.log("No managers found.");
-    } else {
-      console.log("Viewing all managers...\n");
-      console.log("\n");
+  // Select all employees and join with employees table to get manager names
+  connection.query(
+    "SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.name AS department, roles.salary, CONCAT(managers.first_name, ' ', managers.last_name) AS manager FROM employees LEFT JOIN roles ON employees.role_id = roles.id LEFT JOIN departments ON roles.department_id = departments.id LEFT JOIN employees managers ON employees.manager_id = managers.id ORDER BY manager",
+    function (err, results) {
+      if (err) throw err;
+      console.log("Viewing all employees by manager...\n");
       console.table(results);
+      console.log(
+        "*************************************************************************************************************"
+      );
+      mainMenu();
     }
-    console.log(
-      "*************************************************************************************************************"
-    );
-    mainMenu();
-  });
+  );
 }
 
 function addEmployee() {
@@ -187,7 +183,8 @@ function addEmployee() {
       {
         type: "input",
         name: "role_id",
-        message: "Enter the employee's role ID:",
+        message:
+          "Enter the employee's role ID(1 = Sales, 2 = Engineering, 3 = Finance, 4 = Legal):",
       },
       {
         type: "input",
@@ -198,7 +195,7 @@ function addEmployee() {
     .then(function (answer) {
       // Insert the new employee into the database
       connection.query(
-        "INSERT INTO employee SET ?",
+        "INSERT INTO employees SET ?",
         {
           first_name: answer.first_name,
           last_name: answer.last_name,
@@ -207,6 +204,9 @@ function addEmployee() {
         },
         function (err, res) {
           if (err) throw err;
+          console.log(
+            "*************************************************************************************************************"
+          );
           console.log(res.affectedRows + " employee added!\n");
           // Return to main menu
           mainMenu();
@@ -217,7 +217,7 @@ function addEmployee() {
 
 function removeEmployee() {
   // Prompt the user to select an employee to remove
-  connection.query("SELECT * FROM employee", function (err, results) {
+  connection.query("SELECT * FROM employees", function (err, results) {
     if (err) throw err;
     inquirer
       .prompt([
@@ -239,7 +239,7 @@ function removeEmployee() {
       .then(function (answer) {
         // Delete the selected employee from the database
         connection.query(
-          "DELETE FROM employee WHERE ?",
+          "DELETE FROM employees WHERE ?",
           {
             id: answer.employee_id,
           },
@@ -256,7 +256,7 @@ function removeEmployee() {
 
 function updateEmployeeRole() {
   // Prompt the user to select an employee to update
-  connection.query("SELECT * FROM employee", function (err, results) {
+  connection.query("SELECT * FROM employees", function (err, results) {
     if (err) throw err;
     inquirer
       .prompt([
@@ -283,7 +283,7 @@ function updateEmployeeRole() {
       .then(function (answer) {
         // Update the selected employee's role in the database
         connection.query(
-          "UPDATE employee SET ? WHERE ?",
+          "UPDATE employees SET ? WHERE ?",
           [
             {
               role_id: answer.role_id,
@@ -294,6 +294,9 @@ function updateEmployeeRole() {
           ],
           function (err, res) {
             if (err) throw err;
+            console.log(
+              "*************************************************************************************************************"
+            );
             console.log(res.affectedRows + " employee updated!\n");
             // Return to main menu
             mainMenu();
@@ -305,7 +308,7 @@ function updateEmployeeRole() {
 
 function updateEmployeeManager() {
   // Prompt the user to select an employee to update
-  connection.query("SELECT * FROM employee", function (err, results) {
+  connection.query("SELECT * FROM employees", function (err, results) {
     if (err) throw err;
     inquirer
       .prompt([
@@ -341,7 +344,7 @@ function updateEmployeeManager() {
       .then(function (answer) {
         // Update the selected employee's manager in the database
         connection.query(
-          "UPDATE employee SET ? WHERE ?",
+          "UPDATE employees SET ? WHERE ?",
           [
             {
               manager_id: answer.manager_id,
@@ -352,6 +355,9 @@ function updateEmployeeManager() {
           ],
           function (err, res) {
             if (err) throw err;
+            console.log(
+              "*************************************************************************************************************"
+            );
             console.log(res.affectedRows + " employee updated!\n");
             // Return to main menu
             mainMenu();
@@ -362,11 +368,13 @@ function updateEmployeeManager() {
 }
 
 function viewAllRoles() {
-  connection.query("SELECT * FROM role", function (err, results) {
+  connection.query("SELECT * FROM roles", function (err, results) {
     if (err) throw err;
     if (results.length === 0) {
       console.log("No roles found.");
     } else {
+      console.log("*************************************************************************************************************");
+      console.log("Viewing all roles...\n")
       console.table(results);
     }
     // Return to main menu
@@ -397,7 +405,7 @@ function addRole() {
     .then(function (answer) {
       // Insert the new role into the database
       connection.query(
-        "INSERT INTO role SET ?",
+        "INSERT INTO roles SET ?",
         {
           title: answer.title,
           salary: answer.salary,
@@ -405,6 +413,9 @@ function addRole() {
         },
         function (err, res) {
           if (err) throw err;
+          console.log(
+            "*************************************************************************************************************"
+          );
           console.log(res.affectedRows + " role added!\n");
           // Return to main menu
           mainMenu();
@@ -415,7 +426,7 @@ function addRole() {
 
 function removeRole() {
   // Prompt the user to select a role to remove
-  connection.query("SELECT * FROM role", function (err, results) {
+  connection.query("SELECT * FROM roles", function (err, results) {
     if (err) throw err;
     inquirer
       .prompt([
@@ -437,12 +448,13 @@ function removeRole() {
       .then(function (answer) {
         // Delete the selected role from the database
         connection.query(
-          "DELETE FROM role WHERE ?",
+          "DELETE FROM roles WHERE ?",
           {
             id: answer.role_id,
           },
           function (err, res) {
             if (err) throw err;
+            console.log("*************************************************************************************************************");
             console.log(res.affectedRows + " role removed!\n");
             // Return to main menu
             mainMenu();
@@ -453,11 +465,12 @@ function removeRole() {
 }
 
 function viewAllDepartments() {
-  connection.query("SELECT * FROM department", function (err, results) {
+  connection.query("SELECT * FROM departments", function (err, results) {
     if (err) throw err;
     if (results.length === 0) {
       console.log("No departments found.");
     } else {
+      console.log("*************************************************************************************************************");
       console.table(results);
     }
     // Return to main menu
@@ -478,12 +491,13 @@ function addDepartment() {
     .then(function (answer) {
       // Insert the new department into the database
       connection.query(
-        "INSERT INTO department SET ?",
+        "INSERT INTO departments SET ?",
         {
           name: answer.name,
         },
         function (err, res) {
           if (err) throw err;
+          console.log("*************************************************************************************************************");
           console.log(res.affectedRows + " department added!\n");
           // Return to main menu
           mainMenu();
@@ -494,7 +508,7 @@ function addDepartment() {
 
 function removeDepartment() {
   // Prompt the user to select a department to remove
-  connection.query("SELECT * FROM department", function (err, results) {
+  connection.query("SELECT * FROM departments", function (err, results) {
     if (err) throw err;
     inquirer
       .prompt([
@@ -516,12 +530,15 @@ function removeDepartment() {
       .then(function (answer) {
         // Delete the selected department from the database
         connection.query(
-          "DELETE FROM department WHERE ?",
+          "DELETE FROM departments WHERE ?",
           {
             id: answer.department_id,
           },
           function (err, res) {
             if (err) throw err;
+            console.log(
+              "*************************************************************************************************************"
+            );
             console.log(res.affectedRows + " department removed!\n");
             // Return to main menu
             mainMenu();
