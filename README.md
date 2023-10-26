@@ -17,9 +17,36 @@ The user must then create the database by running the following command in the t
 `mysql -u root -p`
 `source db/schema.sql`
 
-Then the user can start the application with the following command in the terminal:
+
+## Usage
+
+The user can start the application with the following command in the terminal:
 
 `node server.js`
 
-## Usage
+The user can then select from the following options:
+View all employees,
+View all employees by department,
+View all employees by manager,
+Add an employee,
+Remove an employee,
+Update an employee role,
+Update an employee manager,
+View all roles,
+Add a role,
+Remove a role,
+View all departments,
+Add a department,
+Delete a department
+
+
+
+
+
+
+## Credits 
+
+The application was helped to completion by Github Copilot and the resources from the ASU bootcamp challenges.
+
+## License
 

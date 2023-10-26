@@ -3,7 +3,8 @@ const inquirer = require("inquirer");
 const cTable = require("console.table");
 
 //mysql connection
-const connection = mysql.createConnection({
+const connection =
+ mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "Wjk10056203!",
@@ -403,22 +404,43 @@ function addRole() {
       },
     ])
     .then(function (answer) {
-      // Insert the new role into the database
+      // Check that the department_id value exists in the departments table
       connection.query(
-        "INSERT INTO roles SET ?",
-        {
-          title: answer.title,
-          salary: answer.salary,
-          department_id: answer.department_id,
-        },
+        "SELECT id FROM departments",
         function (err, res) {
           if (err) throw err;
-          console.log(
-            "*************************************************************************************************************"
-          );
-          console.log(res.affectedRows + " role added!\n");
-          // Return to main menu
-          mainMenu();
+          const departmentIds = res.map((department) => department.id);
+          if (!departmentIds.includes(parseInt(answer.department_id))) {
+            console.log(
+              "*************************************************************************************************************"
+            );
+            console.log("Invalid department ID. Please try again.");
+            console.log(
+              "*************************************************************************************************************"
+            );
+            addRole();
+          } else {
+            // Insert the new role into the database
+            connection.query(
+              "INSERT INTO roles SET ?",
+              {
+                title: answer.title,
+                salary: parseFloat(answer.salary),
+                department_id: answer.department_id,
+              },
+              function (err, res) {
+                if (err) throw err;
+                console.log(
+                  "*************************************************************************************************************"
+                );
+                console.log(res.affectedRows + " role added!\n");
+                console.log(
+                  "*************************************************************************************************************"
+                );
+                mainMenu();
+              }
+            );
+          }
         }
       );
     });
